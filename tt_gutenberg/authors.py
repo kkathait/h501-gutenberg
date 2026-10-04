@@ -1,4 +1,6 @@
 import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 from .data import load_authors, load_metadata, load_languages
 
 
@@ -46,3 +48,29 @@ def list_authors(by_languages=False, alias=False):
         return aliases.tolist()
 
     return authors["author"].dropna().tolist()
+
+
+def plot_translations(over="birth_century"):
+    authors = get_author_languages()
+
+    authors = authors.dropna(
+        subset=["author", "birthdate", "translation_count"]
+    ).copy()
+
+    authors["birth_century"] = (
+        authors["birthdate"].astype(int) // 100
+    ) * 100
+
+    plot = sns.barplot(
+        data=authors,
+        x=over,
+        y="translation_count",
+        errorbar=("ci", 95)
+    )
+
+    plot.set_xlabel("Birth Century")
+    plot.set_ylabel("Average Number of Languages")
+
+    plt.show()
+
+    return plot
